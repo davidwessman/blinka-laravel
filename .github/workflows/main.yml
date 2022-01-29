@@ -1,0 +1,46 @@
+name: Main
+on: [push]
+jobs:
+
+  dusk-php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Prepare The Environment
+        run: cp .env.example .env
+      - name: Create Database
+        run: |
+          sudo systemctl start mysql
+          mysql --user="root" --password="root" -e "CREATE DATABASE 'my-database' character set UTF8mb4 collate utf8mb4_bin;"
+      - name: Install Composer Dependencies
+        run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+      - name: Generate Application Key
+        run: php artisan key:generate
+      - name: Upgrade Chrome Driver
+        run: php artisan dusk:chrome-driver `/opt/google/chrome/chrome --version | cut -d " " -f3 | cut -d "." -f1`
+      - name: Start Chrome Driver
+        run: ./vendor/laravel/dusk/bin/chromedriver-linux &
+      - name: Run Laravel Server
+        run: php artisan serve &
+      - name: Run Tests
+        env:
+          APP_URL: "http://127.0.0.1:8000"
+        run: php artisan dusk tests --log-junit ./blinka_results.xml
+
+      - name: Report to Github PR
+        uses: davidwessman/blinka_action@v1
+        with:
+          filename: ./blinka_results.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report to Github PR
+        uses: davidwessman/blinka_action@v1
+        with:
+          filename: ./blinka_results.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report to Blinka
+        uses: davidwessman/blinka_action@v1
+        with:
+          token_id: ${{ secrets.BLINKA_TOKEN_ID }}
+          token_secret: ${{ secrets.BLINKA_TOKEN_SECRET }}
