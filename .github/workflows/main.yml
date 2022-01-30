@@ -1,5 +1,13 @@
 name: Main
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
 jobs:
   laravel:
     runs-on: ubuntu-latest
@@ -44,15 +52,8 @@ jobs:
           APP_URL: "http://127.0.0.1:8000"
         run: php artisan dusk tests --log-junit ./blinka_results.xml
 
-      - name: Report to Github PR
-        uses: davidwessman/blinka_action@v1.1.2
+      - name: Report test results to pull request
+        uses: davidwessman/blinka_action@main
         with:
           filename: ./blinka_results.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Report to Blinka
-        uses: davidwessman/blinka_action@v1.1.2
-        with:
-          filename: ./blinka_results.xml
-          token_id: ${{ secrets.BLINKA_TOKEN_ID }}
-          token_secret: ${{ secrets.BLINKA_TOKEN_SECRET }}
