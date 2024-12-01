@@ -47,13 +47,20 @@ jobs:
         run: php artisan serve &
 
       - name: Run Tests
-        continue-on-error: true
         env:
           APP_URL: "http://127.0.0.1:8000"
         run: php artisan dusk tests --log-junit ./blinka_results.xml
 
-      - name: Report test results to pull request
-        uses: davidwessman/blinka_action@main
+      - name: Blinka - Export metadata
+        if: always()
+        run: |
+          echo "dusk" > blinka_tag
+
+      - name: Blinka - Archive
+        if: always()
+        uses: actions/upload-artifact@v3
         with:
-          filename: ./blinka_results.xml
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: blinka-${{ strategy.job-index }}
+          path: |
+            ./blinka_results.xml
+            ./blinka_tag
