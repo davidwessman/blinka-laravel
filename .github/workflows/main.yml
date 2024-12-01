@@ -55,5 +55,6 @@ jobs:
       - name: Report test results to pull request
         uses: davidwessman/blinka_action@main
         with:
+          tag: For show
           filename: ./blinka_results.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
