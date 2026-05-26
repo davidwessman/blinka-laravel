@@ -27,7 +27,7 @@ jobs:
           --health-timeout=5s
           --health-retries=3
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Prepare The Environment
         run: cp .env.example .env
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Blinka - Archive
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: blinka-${{ strategy.job-index }}
           path: |
